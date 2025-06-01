@@ -34,12 +34,16 @@ class TreeNode:
     # Called after all iterations are done; should return the 
     # best action from among state.get_actions()
     def get_best(self, state):
-        return random.choice(state.get_actions())
+        if not self.children:
+            return random.choice(state.get_actions())
+        return max(self.children.items(), key=lambda item: item[1].average_score())[0]
         
     # REQUIRED function (implementation optional, but *very* helpful for debugging)
     # Called after all iterations when the -v command line parameter is present
     def print_tree(self, indent = 0):
-        pass
+        print(" " * indent + f"Action: {self.action}, Visits: {self.visits}, Avg: {self.average_score():.2f}")
+        for child in self.children.values():
+            child.print_tree(indent + 2)
 
 
     # RECOMMENDED: select gets all actions available in the state it is passed
@@ -54,7 +58,7 @@ class TreeNode:
         if unexplored:
             self.expand(state, unexplored)
         elif self children:
-            #break need more time to implement
+            
 
     # RECOMMENDED: expand takes the available actions, and picks one at random,
     # adds a child node corresponding to that action, applies the action ot the state
