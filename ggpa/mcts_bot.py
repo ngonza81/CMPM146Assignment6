@@ -58,25 +58,50 @@ class TreeNode:
         if unexplored:
             self.expand(state, unexplored)
         elif self children:
+            # After looking at all actions, choose the best child
+            best_action, best_child = max(
+                self.children.items(),
+                key=lambda item: item[1].ucb_score(self.visits, self.param)
+            )
+            best_child.action.to_action(state).execute()
+            best_child.select(state)
+        else:
+            # When no more actions are chosen
+            result = self.score(state)
+            self.backpropagate(result)
             
 
     # RECOMMENDED: expand takes the available actions, and picks one at random,
     # adds a child node corresponding to that action, applies the action ot the state
     # and then calls rollout on that new node
     def expand(self, state, available):
-        pass 
+        action = random.choice(available)
+        action.to_action(state).execute()
+        child = TreeNode(self.param, parent=self, action=action)
+        self.children[action] = child
+        child.rollout(state)
 
     # RECOMMENDED: rollout plays the game randomly until its conclusion, and then 
     # calls backpropagate with the result you get 
     def rollout(self, state):
-        pass
+        while not state.is_terminal():
+            actions = state.get_actions()
+            if not actions:
+                break
+            random.choice(actions).to_action(state).execute()
+        result = self.score(state)
+        self.backpropagate(result)
         
     # RECOMMENDED: backpropagate records the score you got in the current node, and 
     # then recursively calls the parent's backpropagate as well.
     # If you record scores in a list, you can use sum(self.results)/len(self.results)
     # to get an average.
     def backpropagate(self, result):
-        pass
+        self.visits += 1
+        self.total_reward += result
+        self.results.append(resultt)
+        if self.parent:
+            self.parent.backpropagate(result)
         
     # RECOMMENDED: You can start by just using state.score() as the actual value you are 
     # optimizing; for the challenge scenario, in particular, you may want to experiment
